@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{/css/styles.css}"  rel="stylesheet">
+    <style>
+        header{
+            padding: 20px;
+            border-bottom: 1px solid gray;
+            position: relative;
+        }
+        header form, header div{
+            display: block;
+            position: absolute;
+            top: 40px;
+            right: 5px;
+
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"], input[type="password"], textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            padding: 10px;
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049; /* Verde oscuro */
+        }
+
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+<header><h2>Anuncios</h2>
+    <th:block sec:authorize="isAnonymous()">
+        <form th:action="@{/login}" method="post">
+            <span th:if="${param.errorLogin}">Usuario o contraseña no válidos.</span><br>
+            <input type="text" name="username" placeholder="Username"/>
+            <input type="password" name="password" placeholder="Password"/>
+            <input type="submit" value="Log in" />
+        </form>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()">
+        <div>Bienvenido <span sec:authentication="name"></span>
+            <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Cerrar Sesión</a>
+            <form th:action="@{/logout}" method="post" id="formLogOut"></form> </div>
+    </th:block>
+</header>
+<main>
+    <form th:action="@{/wallypop/anuncio/edit/{id}(id=${anuncio.id})}" method="post" th:object="${anuncio}" enctype="multipart/form-data">
+        <label>Nombre del producto</label><br>
+        <input type="text" placeholder="Nombre del producto..." name="titulo" th:field="*{titulo}"><br>
+        <label>Precio</label><br>
+        <input type="number" placeholder="Precio..." name="precio" min="0" step="0.01" th:field="*{precio}"><br>
+        <label>Descripcion</label><br>
+        <textarea name="descpripcion" id="" cols="30" rows="10" th:field="*{descripcion}"></textarea>
+        <input type="hidden" th:field="*{usuario.id}" th:value="2">
+
+        <div class="foto-container">
+            <div th:each="foto : ${anuncio.fotos}" class="foto"
+                 th:style="'background-image: url(/imagesAnuncios/' + ${foto.nombre} + ');'">
+                <a th:href="@{/anuncios/{id1}/fotos/{id2}/delete(id1=${anuncio.id}, id2=${foto.id})}" class="cruz-delete-foto">X</a>
+            </div>
+            <div class="foto" id="nuevaFoto">
+                <i class="fa-regular fa-image"></i>
+            </div>
+        </div>
+
+        <input type="submit" value="editar">
+    </form>
+    <form th:action="@{/anuncios/edit/{id}/addfoto(id=${anuncio.id})}" method="post" enctype="multipart/form-data" id="formulario-add-foto">
+        <input type="file" name="archivoFoto" class="file-input" id="nuevoArchivo">
+    </form>
+</main>
+<script type="text/javascript">
+    document.getElementById("nuevaFoto").addEventListener("click", function () {
+        document.getElementById("nuevoArchivo").click();
+    } );
+
+    document.getElementById("nuevoArchivo").addEventListener("change", function () {
+        document.getElementById("formulario-add-foto").submit();
+    });
+</script>
+</body>
+</html>

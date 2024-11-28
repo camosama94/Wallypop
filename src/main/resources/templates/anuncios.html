@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar con Inicio de Sesión</title>
+    <style>
+        /* Estilo global del body */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos del header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa; /* Color similar al fondo de navbar en Bootstrap */
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Logo */
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Contenedor de los botones de navegación */
+        header .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Estilo de los botones de navegación */
+        .button-link {
+            padding: 8px 15px;
+            background-color: #007bff; /* Color similar al de los botones de Bootstrap */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .button-link:hover {
+            background-color: #0056b3; /* Hover al estilo de Bootstrap */
+        }
+
+        /* Estilo del formulario de login y registro */
+        header form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="submit"], .submit {
+            padding: 8px 15px;
+            background-color: #28a745; /* Verde, similar al de los botones de Bootstrap */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        input[type="submit"]:hover, .submit:hover {
+            background-color: #218838; /* Hover sobre el botón verde */
+        }
+
+        /* Alineación de la sección de logout */
+        .msg {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg a {
+            padding: 5px 10px;
+            background-color: #dc3545; /* Rojo para logout */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .msg a:hover {
+            background-color: #c82333;
+        }
+
+        /* Estilo de las cards */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 200px;
+        }
+
+        .card {
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: row;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 120px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+
+        .card-footer .btn {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+
+        }
+
+        .card-footer .btn:hover {
+            background-color: #218838;
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .card img {
+                width: 100%;
+                height: 200px;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            .centrar{
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Wallypop</h1>
+    <div class="nav-links">
+        <a th:href="@{'/'}" class="button-link">
+            Anuncios
+        </a>
+        <a th:if="${userID != null}" th:href="@{'/wallypop/misanuncios'}" class="button-link">
+            Mis Anuncios
+        </a>
+    </div>
+
+    <th:block sec:authorize="isAnonymous()">
+        <form th:action="@{/login}" method="post">
+            <input type="text" name="username" placeholder="Username"/>
+            <input type="password" name="password" placeholder="Password"/>
+            <input type="submit" value="Log in" />
+        </form>
+        <a class="submit" th:href="@{'/wallypop/registro'}">Registrar</a>
+    </th:block>
+
+    <th:block sec:authorize="isAuthenticated()">
+        <div class="msg">Bienvenido <span sec:authentication="name"></span>
+            <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Logout</a>
+            <form th:action="@{/logout}" method="post" id="formLogOut"></form>
+        </div>
+    </th:block>
+</header>
+
+<main>
+    <!--<div>
+        <p style="text-align: center" th:if="${error}" th:text="${error}" style="color:red;"></p>
+    </div>-->
+    <div>
+        <p th:if="${error}" th:text="${error}" style="color:red; text-align:center;"></p>
+    </div>
+    <div class="card-container">
+        <div th:each="anuncio: ${anuncios}" class="card">
+            <img th:if="${!anuncio.fotos.isEmpty()}" th:src="@{/imagesAnuncios/{nombre}(nombre=${anuncio.fotos[0].nombre})}" alt="Imagen del anuncio"/>
+            <div class="card-body">
+                <h3 th:text="${anuncio.titulo}"></h3>
+                <p th:text="${anuncio.precio + '€'}"></p>
+                <div class="card-footer">
+                    <a th:href="@{'/wallypop/anuncio/ver/'+${anuncio.id}}" class="btn">Ver</a>
+                    <a th:if="${activar != null}" th:href="@{'/wallypop/borrar/'+${anuncio.id}}" class="btn">Borrar</a>
+                    <a th:if="${activar != null}" th:href="@{'/wallypop/anuncio/edit/'+${anuncio.id}}" class="btn">Editar</a>
+                </div>
+            </div>
+        </div>
+        <div class="card" th:if="${activar != null}">
+            <div class="card-body">
+                <a th:href="@{'/wallypop/anuncio/new'}" class="centrar">
+                    <h2>Añadir Anuncio</h2>
+                </a>
+            </div>
+        </div>
+    </div>
+    <span>
+        <p style="text-align: center" th:text="${'Mostrando '+total+' anuncios'}"></p>
+    </span>
+</main>
+
+</body>
+</html>
+
+
+

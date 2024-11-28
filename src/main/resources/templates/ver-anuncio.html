@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles del Anuncio</title>
+
+    <style>
+        /* Estilos globales */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Logo */
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Contenedor de los botones de navegación */
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Estilo de los botones de navegación */
+        .button-link {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .button-link:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo del formulario de login */
+        header form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="submit"], .submit {
+            padding: 8px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        input[type="submit"]:hover, .submit:hover {
+            background-color: #218838;
+        }
+
+        /* Alineación de la sección de logout */
+        .msg {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .msg a {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .msg a:hover {
+            background-color: #c82333;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo de las cards */
+        .details-container {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .foto-container {
+            position: relative;
+            overflow: hidden; /* Esconde las fotos fuera del rango visible */
+            width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+        }
+        <!---->
+        .carousel {
+            display: flex;
+            transition: transform 0.3s ease; /* Transición suave entre las imágenes */
+        }
+
+        .foto {
+            flex-shrink: 0;
+            width: 100%; /* Hacemos que las imágenes ocupen todo el espacio disponible */
+            height: 300px; /* Altura fija para las fotos del carousel */
+            background-size: contain; /* Ajusta la imagen sin recortarla */
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .carousel-prev, .carousel-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            font-size: 2em;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .carousel-prev {
+            left: 10px;
+        }
+
+        .carousel-next {
+            right: 10px;
+        }
+
+
+        <style>
+         dl {
+             display: flex;
+             flex-wrap: wrap;
+             margin: 10px 0;
+         }
+
+        dt {
+            font-weight: bold;
+            margin-right: 5px;
+            flex-basis: 25%; /* Reduce el espacio del título */
+            text-align: left; /* Alinea a la izquierda */
+        }
+
+        dd {
+            flex-basis: 70%; /* Ajusta el espacio del contenido */
+            margin-left: 0;
+            padding-left: 0; /* Elimina el padding extra */
+            border-bottom: 1px solid #ccc; /* Línea divisoria opcional */
+        }
+    </style>
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Wallypop</h1>
+    <div class="nav-links">
+        <a th:href="@{'/'}" class="button-link">
+            Anuncios
+        </a>
+        <a th:if="${userID != null}" th:href="@{'/wallypop/misanuncios'}" class="button-link">
+            Mis Anuncios
+        </a>
+    </div>
+
+    <!-- Formulario de login para usuarios no autenticados -->
+    <th:block sec:authorize="isAnonymous()">
+        <form th:action="@{/login}" method="post">
+            <span th:if="${param.errorLogin}">Usuario o contraseña no válidos.</span><br>
+            <input type="text" name="username" placeholder="Username"/>
+            <input type="password" name="password" placeholder="Password"/>
+            <input type="submit" value="Log in" />
+        </form>
+    </th:block>
+
+    <!-- Sección de logout para usuarios autenticados -->
+    <th:block sec:authorize="isAuthenticated()">
+        <div class="msg">Bienvenido <span sec:authentication="name"></span>
+            <a href="#" id="logoutEnlace" onclick="document.getElementById('formLogOut').submit()">Cerrar Sesión</a>
+            <form th:action="@{/logout}" method="post" id="formLogOut"></form>
+        </div>
+    </th:block>
+</header>
+
+<main>
+    <div class="details-container">
+        <div class="foto-container">
+            <div class="carousel">
+                <div th:each="foto : ${anuncio.fotos}" class="foto"
+                     th:style="'background-image: url(/imagesAnuncios/' + ${foto.nombre} + ');'">
+                </div>
+            </div>
+            <!-- Controles de carousel -->
+            <button class="carousel-prev">‹</button>
+            <button class="carousel-next">›</button>
+        </div>
+        <h3>Datos del producto</h3>
+        <dl>
+            <dt>Título</dt>
+            <dd th:text="${anuncio.getTitulo}"></dd>
+            <dt>Precio</dt>
+            <dd th:text="${anuncio.getPrecio + '€'}"></dd>
+            <dt>Descripción</dt>
+            <dd th:text="${anuncio.getDescripcion}"></dd>
+        </dl>
+
+        <h3>Datos del anunciante</h3>
+        <dl>
+            <dt>Nombre</dt>
+            <dd th:text="${usuario.getNombre}"></dd>
+            <dt>Teléfono</dt>
+            <dd th:text="${usuario.getTelefono}"></dd>
+            <dt>Población</dt>
+            <dd th:text="${usuario.getPoblacion}"></dd>
+        </dl>
+    </div>
+</main>
+<script>
+    document.querySelector('.carousel-next').addEventListener('click', () => {
+        moveCarousel(1);
+    });
+
+    document.querySelector('.carousel-prev').addEventListener('click', () => {
+        moveCarousel(-1);
+    });
+
+    let currentIndex = 0;
+
+    function moveCarousel(direction) {
+        const fotos = document.querySelectorAll('.foto');
+        const totalFotos = fotos.length;
+
+        // Asegura que el índice se mantenga dentro del rango
+        currentIndex = (currentIndex + direction + totalFotos) % totalFotos;
+
+        // Desplaza el carousel a la imagen correspondiente
+        const offset = -currentIndex * 100; // 100% para cada foto
+        document.querySelector('.carousel').style.transform = `translateX(${offset}%)`;
+
+    }
+
+</script>
+</body>
+</html>
