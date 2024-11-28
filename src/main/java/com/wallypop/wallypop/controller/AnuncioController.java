@@ -154,11 +154,25 @@ public class AnuncioController {
     }
 
     @GetMapping ("/wallypop/anuncio/edit/{id}")
-    public String editAnuncio(Model model, @PathVariable Long id) {
-        Anuncio anuncio = anuncioService.findAnuncioById(id);
-        if(anuncio != null) {
-            model.addAttribute("anuncio", anuncio);
-            return "edit-anuncio";
+    public String editAnuncio(Model model, @PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String nombre = authentication.getName();
+            Long userId = usuarioService.findByEmail(nombre).getId();
+
+            Anuncio anuncio = anuncioService.findAnuncioById(id);
+            if (anuncio != null) {
+                if (userId == anuncio.getUsuario().getId()) {
+
+                    model.addAttribute("anuncio", anuncio);
+                    return "edit-anuncio";
+
+                }
+                redirectAttributes.addFlashAttribute("error", "No puedes editar anuncios que no te pertenecen.");
+                return "redirect:/wallypop/misanuncios";
+            }
+            redirectAttributes.addFlashAttribute("error", "No existe el anuncio.");
+            return "redirect:/wallypop/misanuncios";
         }
         return "redirect:/";
     }

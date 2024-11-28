@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**").permitAll()
                 .requestMatchers("/wallypop/borrar/**").authenticated()
                 .requestMatchers("/anuncios/*/fotos/*/delete").authenticated()
+                .requestMatchers("/wallypop/anuncio/new").authenticated()
                 .anyRequest().authenticated()
         )
         .formLogin(
